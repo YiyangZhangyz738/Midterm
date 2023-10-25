@@ -29,7 +29,9 @@
 
     <div class="container">
         <div class="left">
-            <canvas id="visualization2" width="600" height="400"></canvas>
+            <audio controls>
+                <source src="assets/images/phone.wav" type="audio/mpeg">
+            </audio>
         </div>
         <div class="right">
             <b>Title:</b> Can't Get Through
@@ -56,57 +58,6 @@
         <p>Credit to Yifei Luo, Yili Wen.</p>
     </footer>
 
-    <script>
-        function createVisualization(canvasId, audioUrl) {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const analyser = audioContext.createAnalyser();
-            const canvas = document.getElementById(canvasId);
-            const canvasContext = canvas.getContext('2d');
-
-            const audio = new Audio(audioUrl);
-            const source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-
-            analyser.fftSize = 128;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            function draw() {
-                analyser.getByteFrequencyData(dataArray);
-
-                canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-        
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let barHeight;
-                let x = 0;
-
-                for (let i = 0; i < bufferLength; i++) {
-                    barHeight = dataArray[i];
-
-                const grayValue = barHeight + 100;
-                const color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-        
-                canvasContext.fillStyle = color;
-                canvasContext.fillRect(x, canvas.height - barHeight , barWidth, barHeight);
-        
-                x += barWidth + 1;
-            }
-
-            requestAnimationFrame(draw);
-        }
-
-
-            audio.addEventListener('canplay', () => {
-                audio.play();
-                draw();
-            });
-        }
-
-        
-        createVisualization('visualization2', 'assets/images/phone.wav');
-        createVisualization('visualization3', 'assets/images/walking_in_a_house2.mp3');
-    </script>
 
 </body>
 </html>
