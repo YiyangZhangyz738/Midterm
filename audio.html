@@ -44,24 +44,20 @@
 
     <div class="image-container2">
         <div class="image2">
-            <audio controls>
-                <source src="assets/images/cooking.mp3" type="audio/mpeg">
-            </audio>
+            <a href="a1.html">
+                <canvas id="visualization1" width="300" height="200"></canvas>
+            </a>
             <div class="image-title">Novice Chef</div>
         </div>
         <div class="image2">
             <a href="a2.html">
-                <audio controls>
-                    <source src="assets/images/phone.wav" type="audio/mpeg">
-                </audio>
+                <canvas id="visualization2" width="300" height="200"></canvas>
             </a>
             <div class="image-title">Can't Get Through</div>
         </div>
         <div class="image2">
             <a href="a3.html">
-                <audio controls>
-                    <source src="assets/images/walking_in_a_house2.mp3" type="audio/mpeg">
-                </audio>
+                <canvas id="visualization3" width="300" height="200"></canvas>
             </a>
             <div class="image-title">Indoor Walking</div>
         </div>
@@ -73,5 +69,58 @@
         <p>Credit to Yifei Luo, Yili Wen.</p>
     </footer>
 
+    <script>
+        function createVisualization(canvasId, audioUrl) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            const canvas = document.getElementById(canvasId);
+            const canvasContext = canvas.getContext('2d');
+
+            const audio = new Audio(audioUrl);
+            const source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function draw() {
+                analyser.getByteFrequencyData(dataArray);
+
+                canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+        
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i];
+
+                // 计算灰度颜色
+                const grayValue = barHeight + 100;
+                const color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+        
+                canvasContext.fillStyle = color;
+                canvasContext.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+        
+                x += barWidth + 1;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+
+            audio.addEventListener('canplay', () => {
+                audio.volume = 0.5;
+                audio.play();
+                draw();
+            });
+        }
+
+        createVisualization('visualization1', 'assets/images/cooking.mp3');
+        createVisualization('visualization2', 'assets/images/phone.wav');
+        createVisualization('visualization3', 'assets/images/walking_in_a_house2.mp3');
+    </script>
 </body>
 </html>
